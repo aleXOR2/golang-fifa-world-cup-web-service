@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"golang-fifa-world-cup-web-service/data"
 	"net/http"
 )
@@ -37,7 +38,18 @@ func ListWinners(res http.ResponseWriter, req *http.Request) {
 
 // AddNewWinner adds new winner to the list
 func AddNewWinner(res http.ResponseWriter, req *http.Request) {
-
+	if !data.IsAccessTokenValid(req.Header.Get("x-access-token")) {
+		fmt.Println("invalid token")
+		res.WriteHeader(http.StatusUnauthorized)
+	} else {
+		fmt.Println("valid token")
+		err := data.AddNewWinner(req.Body)
+		if err != nil {
+			res.WriteHeader(http.StatusUnprocessableEntity)
+			return
+		}
+		res.WriteHeader(http.StatusCreated)
+	}
 }
 
 // WinnersHandler is the dispatcher for all /winners URL
